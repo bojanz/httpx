@@ -15,28 +15,6 @@ import (
 	"golang.org/x/net/netutil"
 )
 
-// ListenAndServe listens on the TCP address addr and then calls
-// Serve with handler to handle requests on incoming connections.
-// Accepted connections are configured to enable TCP keep-alives.
-//
-// The handler is typically nil, in which case http.DefaultServeMux is used.
-//
-// ListenAndServe always returns a non-nil error.
-func ListenAndServe(addr string, handler http.Handler) error {
-	server := NewServer(addr, handler)
-	return server.ListenAndServe()
-}
-
-// ListenAndServeTLS acts identically to ListenAndServe, except that it
-// expects HTTPS connections. Additionally, files containing a certificate and
-// matching private key for the server must be provided. If the certificate
-// is signed by a certificate authority, the certFile should be the concatenation
-// of the server's certificate, any intermediates, and the CA's certificate.
-func ListenAndServeTLS(addr, certFile, keyFile string, handler http.Handler) error {
-	server := NewServer(addr, handler)
-	return server.ListenAndServeTLS(certFile, keyFile)
-}
-
 // Server represents an HTTP server.
 type Server struct {
 	*http.Server
