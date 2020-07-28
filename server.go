@@ -5,10 +5,13 @@ package httpx
 
 import (
 	"crypto/tls"
+	"fmt"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
+	"github.com/coreos/go-systemd/activation"
 	"golang.org/x/net/netutil"
 )
 
@@ -43,8 +46,16 @@ type Server struct {
 	MaxConnections int
 }
 
-// NewServer creates a new HTTP server for the given TCP address and handler.
+// NewServer creates a new HTTP server for the given address and handler.
+//
+// The addr is a TCP address in the form of "host:port" (e.g. "0.0.0.0:80")
+// or a systemd socket name (e.g. "systemd:myapp.socket").
+// The handler can be nil, in which case http.DefaultServeMux is used.
 func NewServer(addr string, handler http.Handler) *Server {
+	if addr == "" {
+		// Preserve the default documented by http.Server in stdlib.
+		addr = ":http"
+	}
 	srv := &Server{
 		Server: &http.Server{
 			Addr:    addr,
@@ -73,8 +84,8 @@ func NewServer(addr string, handler http.Handler) *Server {
 	return srv
 }
 
-// ListenAndServe listens on the TCP address srv.Addr and then
-// calls Serve to handle requests on incoming connections.
+// ListenAndServe listens on srv.Addr and calls Serve to handle incoming requests.
+//
 // Accepted connections are configured to enable TCP keep-alives.
 //
 // ListenAndServe always returns a non-nil error. After Shutdown or Close,
@@ -87,8 +98,8 @@ func (srv *Server) ListenAndServe() error {
 	return srv.Serve(ln)
 }
 
-// ListenAndServeTLS listens on the TCP address srv.Addr and then
-// calls ServeTLS to handle requests on incoming TLS connections.
+// ListenAndServeTLS listens on srv.Addr and calls ServeTLS to handle incoming requests.
+//
 // Accepted connections are configured to enable TCP keep-alives.
 //
 // Filenames containing a certificate and matching private key for the
@@ -108,11 +119,23 @@ func (srv *Server) ListenAndServeTLS(certFile, keyFile string) error {
 	return srv.ServeTLS(ln, certFile, keyFile)
 }
 
-// Listen returns a listener for srv.Addr.
+// Listen returns a TCP or systemd socket listener for srv.Addr.
 func (srv *Server) Listen() (net.Listener, error) {
-	ln, err := net.Listen("tcp", srv.Addr)
-	if err != nil {
-		return nil, err
+	var ln net.Listener
+	if strings.HasPrefix(srv.Addr, "systemd:") {
+		name := srv.Addr[8:]
+		listeners, _ := activation.ListenersWithNames()
+		listener, ok := listeners[name]
+		if !ok {
+			return nil, fmt.Errorf("listen systemd %s: socket not found", name)
+		}
+		ln = listener[0]
+	} else {
+		var err error
+		ln, err = net.Listen("tcp", srv.Addr)
+		if err != nil {
+			return nil, err
+		}
 	}
 	if srv.MaxConnections > 0 {
 		ln = netutil.LimitListener(ln, srv.MaxConnections)

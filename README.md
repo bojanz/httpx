@@ -6,10 +6,13 @@ Provides an extended, production-ready HTTP server.
 
 1. Production-ready defaults (TLS, timeouts), following [Cloudflare recommendations](https://blog.cloudflare.com/exposing-go-on-the-internet/).
 2. Limiter for max simultaneous connections.
+3. Support for systemd sockets.
 
 ```go
     // Serve r on port 80.
     err := httpx.ListenAndServe(":80", r)
+    // Serve r on a systemd socket.
+    err := httpx.ListenAndServe("systemd:myapp-http.socket", r)
 
     // Serve up to 1000 simultaneous connections on port 80.
     server := httpx.NewServer(":80", r)

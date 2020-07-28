@@ -6,5 +6,6 @@
 // Features:
 //   1. Production-ready defaults (TLS, timeouts), following Cloudflare recommendations.
 //   2. Limiter for max simultaneous connections.
+//   3. Support for systemd sockets.
 //
 package httpx
