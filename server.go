@@ -27,7 +27,7 @@ type Server struct {
 // NewServer creates a new HTTP server for the given address and handler.
 //
 // The addr is a TCP address in the form of "host:port" (e.g. "0.0.0.0:80")
-// or a systemd socket name (e.g. "systemd:myapp.socket").
+// or a systemd socket name (e.g. "systemd:myapp-http").
 // The handler can be nil, in which case http.DefaultServeMux is used.
 func NewServer(addr string, handler http.Handler) *Server {
 	if addr == "" {
