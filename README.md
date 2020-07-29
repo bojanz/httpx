@@ -1,4 +1,4 @@
-# httpx [![Build Status](https://travis-ci.org/bojanz/httpx.png?branch=master)](https://travis-ci.org/bojanz/httpx) [![Coverage Status](https://coveralls.io/repos/github/bojanz/httpx/badge.svg?branch=master)](https://coveralls.io/github/bojanz/httpx?branch=master) [![Go Report Card](https://goreportcard.com/badge/github.com/bojanz/httpx)](https://goreportcard.com/report/github.com/bojanz/httpx) [![GoDoc](https://godoc.org/github.com/bojanz/httpx?status.svg)](https://godoc.org/github.com/bojanz/httpx)
+# httpx [![Build Status](https://travis-ci.org/bojanz/httpx.png?branch=master)](https://travis-ci.org/bojanz/httpx) [![Go Report Card](https://goreportcard.com/badge/github.com/bojanz/httpx)](https://goreportcard.com/report/github.com/bojanz/httpx) [![GoDoc](https://godoc.org/github.com/bojanz/httpx?status.svg)](https://godoc.org/github.com/bojanz/httpx)
 
 Provides an extended, production-ready HTTP server.
 

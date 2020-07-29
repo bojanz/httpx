@@ -6,9 +6,7 @@ go:
 
 before_install:
   - go get golang.org/x/lint/golint
-  - go get github.com/mattn/goveralls
 
 script:
   - go test
   - golint .
-  - goveralls -service=travis-ci
