@@ -11,22 +11,23 @@ Provides an extended, production-ready HTTP server.
 ```go
     // Serve r on port 80.
     server := httpx.NewServer(":80", r)
-    err := server.ListenAndServe()
+    err := server.Start()
     // Serve r on a systemd socket (FileDescriptorName=myapp-http).
     server := httpx.NewServer("systemd:myapp-http", r)
-    err := server.ListenAndServe()
+    err := server.Start()
 
+    cert, err := tls.LoadX509KeyPair("/srv/cert.pem", "/srv/key.pem")
     // Serve r on port 443.
-    server := httpx.NewServer(":443", r)
-    err := server.ListenAndServeTLS("/srv/cert.pem", "/srv/key.pem")
+    server := httpx.NewServerTLS(":443", cert, r)
+    err := server.Start()
     // Serve r on a systemd TLS socket (FileDescriptorName=myapp-https).
-    server := httpx.NewServer("systemd:myapp-https", r)
-    err := server.ListenAndServeTLS("/srv/cert.pem", "/srv/key.pem")
+    server := httpx.NewServerTLS("systemd:myapp-https", cert, r)
+    err := server.Start()
 
     // Serve up to 1000 simultaneous connections on port 8080.
     server := httpx.NewServer(":8080", r)
     server.MaxConnections = 1000
-    err := server.ListenAndServe()
+    err := server.Start()
 ```
 
 ## Systemd setup

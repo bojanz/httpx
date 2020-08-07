@@ -24,14 +24,14 @@ type Server struct {
 	MaxConnections int
 }
 
-// NewServer creates a new HTTP server for the given address and handler.
+// NewServer creates a new HTTP server.
 //
 // The addr is a TCP address in the form of "host:port" (e.g. "0.0.0.0:80")
 // or a systemd socket name (e.g. "systemd:myapp-http").
 // The handler can be nil, in which case http.DefaultServeMux is used.
 func NewServer(addr string, handler http.Handler) *Server {
 	if addr == "" {
-		// Preserve the default documented by http.Server in stdlib.
+		// Preserve the stdlib default.
 		addr = ":http"
 	}
 	srv := &Server{
@@ -60,6 +60,47 @@ func NewServer(addr string, handler http.Handler) *Server {
 	}
 
 	return srv
+}
+
+// NewServerTLS creates a new HTTPS server.
+//
+// The addr is a TCP address in the form of "host:port" (e.g. "0.0.0.0:80")
+// or a systemd socket name (e.g. "systemd:myapp-http").
+// The handler can be nil, in which case http.DefaultServeMux is used.
+func NewServerTLS(addr string, cert tls.Certificate, handler http.Handler) *Server {
+	if addr == "" {
+		// Preserve the stdlib default.
+		addr = ":https"
+	}
+	srv := NewServer(addr, handler)
+	srv.TLSConfig.Certificates = []tls.Certificate{cert}
+
+	return srv
+}
+
+// IsTLS returns whether TLS is enabled.
+func (srv *Server) IsTLS() bool {
+	return len(srv.TLSConfig.Certificates) > 0 || srv.TLSConfig.GetCertificate != nil
+}
+
+// Start starts the server, handling incoming requests.
+//
+// Equivalent to ListenAndServe / ListenAndServeTLS without requiring
+// the caller to choose, the server already knows whether TLS is enabled.
+//
+// Accepted connections are configured to enable TCP keep-alives.
+//
+// Start always returns a non-nil error. After Shutdown or Close,
+// the returned error is ErrServerClosed.
+func (srv *Server) Start() error {
+	ln, err := srv.Listen()
+	if err != nil {
+		return err
+	}
+	if srv.IsTLS() {
+		ln = tls.NewListener(ln, srv.TLSConfig)
+	}
+	return srv.Serve(ln)
 }
 
 // ListenAndServe listens on srv.Addr and calls Serve to handle incoming requests.

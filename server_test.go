@@ -4,6 +4,7 @@
 package httpx_test
 
 import (
+	"crypto/tls"
 	"net"
 	"net/http"
 	"testing"
@@ -38,6 +39,33 @@ func Test_NewServer(t *testing.T) {
 	}
 	if server.TLSConfig == nil {
 		t.Errorf("TLSConfig is not set")
+	}
+}
+
+func Test_NewServerTLS(t *testing.T) {
+	var cert tls.Certificate
+	server := httpx.NewServerTLS("", cert, nil)
+	if server.Addr != ":https" {
+		t.Errorf("got %v, want :https", server.Addr)
+	}
+	if server.TLSConfig == nil {
+		t.Errorf("TLSConfig is not set")
+	}
+	if len(server.TLSConfig.Certificates) == 0 {
+		t.Errorf("Certificates are not set")
+	}
+}
+
+func TestServer_IsTLS(t *testing.T) {
+	server := httpx.NewServer("", nil)
+	if server.IsTLS() {
+		t.Errorf("got true, want false")
+	}
+
+	var cert tls.Certificate
+	server = httpx.NewServerTLS("", cert, nil)
+	if !server.IsTLS() {
+		t.Errorf("got false, want true")
 	}
 }
 
