@@ -5,8 +5,10 @@ package httpx_test
 
 import (
 	"crypto/tls"
+	"io/ioutil"
 	"net"
 	"net/http"
+	"os"
 	"testing"
 
 	"github.com/bojanz/httpx"
@@ -96,5 +98,22 @@ func TestServer_Listen(t *testing.T) {
 	}
 	if err != nil {
 		t.Errorf("unexpected error %v", err)
+	}
+
+	// Name of a non existing file
+	fh, err := ioutil.TempFile("", "server-*.unix")
+	if err != nil {
+		t.Skip(err)
+	}
+	fh.Close()
+	// Race condition: if the file is created between Remove and Listen, we fail.
+	os.Remove(fh.Name())
+	server = httpx.NewServer("unix:"+fh.Name(), http.DefaultServeMux)
+	ln, err = server.Listen()
+	if _, ok := ln.(*net.UnixListener); !ok {
+		t.Errorf("got %T, want *net.UnixListener", ln)
+	}
+	if err != nil {
+		t.Errorf("unexpected error %+v", err)
 	}
 }
