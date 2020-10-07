@@ -2,6 +2,8 @@
 
 Provides an extended, production-ready HTTP server.
 
+Backstory: https://bojanz.github.io/increasing-http-server-boilerplate-go/
+
 ## Features
 
 1. Production-ready defaults (TLS, timeouts), following [Cloudflare recommendations](https://blog.cloudflare.com/exposing-go-on-the-internet/).
