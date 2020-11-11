@@ -1,6 +1,7 @@
 // Copyright (c) 2020 Bojan Zivanovic and contributors
 // SPDX-License-Identifier: MIT
 
+// Package httpx provides an extended, production-ready HTTP server.
 package httpx
 
 import (
