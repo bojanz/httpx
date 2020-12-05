@@ -151,8 +151,12 @@ func (srv *Server) Listen() (net.Listener, error) {
 		}
 		ln = listener[0]
 	} else {
+		network, name := "tcp", srv.Addr
+		if strings.HasPrefix(name, "unix:") {
+			network, name = "unix", name[5:]
+		}
 		var err error
-		ln, err = net.Listen("tcp", srv.Addr)
+		ln, err = net.Listen(network, name)
 		if err != nil {
 			return nil, err
 		}
